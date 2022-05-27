@@ -1,70 +1,45 @@
-# Getting Started with Create React App
+# Problem importing react-ace editor transitively
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project shows a problem encountered when using CRA 5 (incl Webpack 5) and trying to import a custom component
+that wraps ReactAce.
 
-## Available Scripts
+The project has a sub-module `react-ace-module` with just a simple `index.js` as follows:
 
-In the project directory, you can run:
+```javascript
+import * as React from "react"
+import ReactAce from "react-ace";
 
-### `npm start`
+export const MyReactAce=() => {
+    return React.createElement(ReactAce, {}, null)
+    // return React.createElement(ReactAce.default, {}, null)
+}
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The module uses ESM `exports` in its `package.json`:
+```json
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./index.js"
+    }
+  }
+```
+This module is imported into the main CRA app. 
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+To reproduce the error run `npm install` and `npm start`. In the browser console you can see the error:
 
-### `npm test`
+```
+Uncaught Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Check the render method of `MyReactAce`.
+    at createFiberFromTypeAndProps (react-dom.development.js:28389:1)
+    at createFiberFromElement (react-dom.development.js:28415:1)
+    at reconcileSingleElement (react-dom.development.js:15620:1)
+    at reconcileChildFibers (react-dom.development.js:15678:1)
+    at reconcileChildren (react-dom.development.js:19971:1)
+    at updateFunctionComponent (react-dom.development.js:20419:1)
+    at beginWork (react-dom.development.js:22430:1)
+    at HTMLUnknownElement.callCallback (react-dom.development.js:4161:1)
+    at Object.invokeGuardedCallbackDev (react-dom.development.js:4210:1)
+    at invokeGuardedCallback (react-dom.development.js:4274:1)
+```
