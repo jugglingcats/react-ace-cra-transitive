@@ -10,6 +10,8 @@ import * as React from "react"
 import ReactAce from "react-ace";
 
 export const MyReactAce=() => {
+    // switch the two lines below to get the app working!
+
     return React.createElement(ReactAce, {}, null)
     // return React.createElement(ReactAce.default, {}, null)
 }
@@ -43,3 +45,5 @@ Check the render method of `MyReactAce`.
     at Object.invokeGuardedCallbackDev (react-dom.development.js:4210:1)
     at invokeGuardedCallback (react-dom.development.js:4274:1)
 ```
+
+If you flip the comment in `react-ace-module/index.js` to use `ReactAce.default` you can get it to work.
